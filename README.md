@@ -2,64 +2,75 @@
 
 ## Overview
 
-AI-Powered Incident Management Platform is a production-style backend application built using Spring Boot. The platform enables organizations to manage incidents, collaborate through comments, enforce role-based access control, and leverage AI-powered root cause analysis for faster incident resolution.
+AI-Powered Incident Management Platform is a secure backend application built using Spring Boot that enables organizations to manage incidents, collaborate through comments, and leverage AI-powered analysis for root cause identification and resolution recommendations.
 
-The application follows a layered architecture and demonstrates industry-standard backend development practices including authentication, authorization, validation, exception handling, database relationships, API documentation, and external AI integration.
+The platform provides JWT-based authentication, role-based access control, incident tracking, comment management, PostgreSQL persistence, Swagger API documentation, and AI integration using Groq LLM.
 
 ---
 
-## Key Features
+## Live Demo
+
+### API Base URL
+
+https://ai-incident-management-platform-production.up.railway.app
+
+### Swagger Documentation
+
+https://ai-incident-management-platform-production.up.railway.app/swagger-ui/index.html
+
+---
+
+## Features
 
 ### Authentication & Authorization
 
-* User Registration and Login
-* JWT-Based Authentication
-* BCrypt Password Encryption
-* Role-Based Access Control (RBAC)
-* Roles: ADMIN, ENGINEER, EMPLOYEE
+* User Registration
+* User Login
+* JWT Token Generation
+* Secure API Access
+* Spring Security Integration
 
 ### Incident Management
 
-* Create Incidents
-* Retrieve Incidents
+* Create Incident
+* View Incidents
 * Update Incident Status
-* Delete Incidents
-* Severity Classification
-* Status Tracking
+* Track Incident Details
+* Store Incident History
 
 ### Comment Management
 
 * Add Comments to Incidents
-* Retrieve Incident Comments
-* Collaborative Incident Investigation
+* View Incident Discussions
+* Collaborative Incident Tracking
 
-### AI-Powered Root Cause Analysis
+### AI-Powered Analysis
 
-* Integrates with Groq LLM API
-* Generates Possible Root Causes
-* Identifies Business Impact
-* Suggests Resolution Steps
+* Root Cause Analysis
+* Impact Assessment
+* Resolution Recommendations
+* Incident Summary Generation
+* Groq LLM Integration
 
 ### API Documentation
 
-* Swagger/OpenAPI Integration
+* Swagger UI
+* OpenAPI Documentation
 * Interactive API Testing
 
-### Production Features
+### Cloud Deployment
 
-* DTO Pattern
-* Global Exception Handling
-* Input Validation
-* Layered Architecture
-* Database Relationships
+* Railway Deployment
+* PostgreSQL Cloud Database
+* Environment Variable Configuration
 
 ---
 
-## Technology Stack
+## Tech Stack
 
 ### Backend
 
-* Java 17
+* Java 21
 * Spring Boot 3
 * Spring Security
 * Spring Data JPA
@@ -67,27 +78,31 @@ The application follows a layered architecture and demonstrates industry-standar
 
 ### Database
 
-* MySQL
+* PostgreSQL
 
-### Security
+### Authentication
 
-* JWT Authentication
-* BCrypt Password Encoding
-* Role-Based Access Control
+* JWT (JSON Web Token)
 
 ### AI Integration
 
 * Groq API
-* Llama 3.1 Model
+* Llama Model
 
-### Documentation & Testing
+### Documentation
 
-* Swagger/OpenAPI
-* Postman
+* Swagger OpenAPI
 
-### Build & Version Control
+### Build Tool
 
 * Maven
+
+### Deployment
+
+* Railway
+
+### Version Control
+
 * Git
 * GitHub
 
@@ -95,33 +110,35 @@ The application follows a layered architecture and demonstrates industry-standar
 
 ## System Architecture
 
-Client (Postman / Swagger)
-
+Client
 ↓
-
-Controller Layer
-
+Spring Boot REST API
 ↓
-
+Spring Security + JWT
+↓
 Service Layer
-
 ↓
-
-Repository Layer
-
+Spring Data JPA
 ↓
+PostgreSQL Database
 
-MySQL Database
+AI Analysis Flow
 
+Incident Description
 ↓
-
-External AI Service (Groq)
+Groq API
+↓
+LLM Analysis
+↓
+Root Cause
+Impact
+Resolution Steps
 
 ---
 
 ## Database Design
 
-### User
+### Users
 
 | Field    | Type   |
 | -------- | ------ |
@@ -131,31 +148,24 @@ External AI Service (Groq)
 | password | String |
 | role     | Enum   |
 
-### Incident
+### Incidents
 
-| Field       | Type          |
-| ----------- | ------------- |
-| id          | Long          |
-| title       | String        |
-| description | String        |
-| severity    | Enum          |
-| status      | Enum          |
-| createdAt   | LocalDateTime |
-| updatedAt   | LocalDateTime |
+| Field       | Type      |
+| ----------- | --------- |
+| id          | Long      |
+| title       | String    |
+| description | String    |
+| status      | Enum      |
+| createdAt   | Timestamp |
 
-### Comment
+### Comments
 
-| Field     | Type          |
-| --------- | ------------- |
-| id        | Long          |
-| message   | String        |
-| createdAt | LocalDateTime |
-| incident  | Incident      |
-
-### Entity Relationships
-
-* One Incident → Many Comments
-* Many Comments → One Incident
+| Field      | Type      |
+| ---------- | --------- |
+| id         | Long      |
+| comment    | String    |
+| incidentId | Long      |
+| createdAt  | Timestamp |
 
 ---
 
@@ -163,88 +173,84 @@ External AI Service (Groq)
 
 ### Authentication
 
-| Method | Endpoint           |
-| ------ | ------------------ |
-| POST   | /api/auth/register |
-| POST   | /api/auth/login    |
+#### Register User
 
-### Incident Management
+POST /api/auth/register
 
-| Method | Endpoint                   |
-| ------ | -------------------------- |
-| POST   | /api/incidents             |
-| GET    | /api/incidents             |
-| GET    | /api/incidents/{id}        |
-| PUT    | /api/incidents/{id}/status |
-| DELETE | /api/incidents/{id}        |
+#### Login User
 
-### Comment Management
+POST /api/auth/login
 
-| Method | Endpoint                     |
-| ------ | ---------------------------- |
-| POST   | /api/incidents/{id}/comments |
-| GET    | /api/incidents/{id}/comments |
+---
+
+### Incidents
+
+#### Create Incident
+
+POST /api/incidents
+
+#### Get All Incidents
+
+GET /api/incidents
+
+#### Get Incident By Id
+
+GET /api/incidents/{id}
+
+#### Update Incident
+
+PUT /api/incidents/{id}
+
+#### Delete Incident
+
+DELETE /api/incidents/{id}
+
+---
+
+### Comments
+
+#### Add Comment
+
+POST /api/comments
+
+#### Get Comments
+
+GET /api/comments/{incidentId}
+
+---
 
 ### AI Analysis
 
-| Method | Endpoint        |
-| ------ | --------------- |
-| POST   | /api/ai/analyze |
+#### Analyze Incident
+
+POST /api/ai/analyze
 
 ---
 
-## Security Implementation
+## Security
 
-### Authentication
-
-* JWT Token Generation
-* JWT Validation
-* Stateless Authentication
-
-### Authorization
-
-| Role     | Permissions                 |
-| -------- | --------------------------- |
-| ADMIN    | Full Access                 |
-| ENGINEER | Manage Incidents & Comments |
-| EMPLOYEE | Create and View Incidents   |
+* JWT Authentication
+* Stateless Sessions
+* Password Encryption
+* Protected APIs
+* Spring Security Filters
 
 ---
 
-## Sample AI Analysis
+## Environment Variables
 
-### Input
+Create the following variables:
 
-Database connection timeout while processing payments
+```properties
+SPRING_DATASOURCE_URL=
+SPRING_DATASOURCE_USERNAME=
+SPRING_DATASOURCE_PASSWORD=
 
-### Output
+JWT_SECRET=
+JWT_EXPIRATION=
 
-* Possible Root Causes
-* Impact Assessment
-* Suggested Resolution Steps
-* Troubleshooting Recommendations
-
----
-
-## Project Structure
-
-src/main/java
-
-├── controller
-
-├── service
-
-├── repository
-
-├── entity
-
-├── dto
-
-├── security
-
-├── config
-
-└── exception
+GROQ_API_KEY=
+```
 
 ---
 
@@ -253,10 +259,16 @@ src/main/java
 ### Clone Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/gkarthik10/ai-incident-management-platform.git
 ```
 
-### Configure Application Properties
+### Navigate to Project
+
+```bash
+cd ai-incident-management-platform
+```
+
+### Configure Environment
 
 Create:
 
@@ -272,6 +284,7 @@ spring.datasource.username=
 spring.datasource.password=
 
 jwt.secret=
+jwt.expiration=
 
 groq.api.key=
 ```
@@ -282,7 +295,13 @@ groq.api.key=
 mvn spring-boot:run
 ```
 
-### Access Swagger
+Application starts on:
+
+```text
+http://localhost:8080
+```
+
+Swagger:
 
 ```text
 http://localhost:8080/swagger-ui/index.html
@@ -292,33 +311,33 @@ http://localhost:8080/swagger-ui/index.html
 
 ## Future Enhancements
 
-* React Frontend
+* Role-Based Access Control (Admin/User)
 * Email Notifications
-* Incident Assignment Workflow
-* Dashboard Analytics
-* Audit Logging
+* Incident Dashboard
+* Analytics & Reporting
+* Docker Support
+* Kubernetes Deployment
+* React Frontend
+* Audit Logs
 * File Attachments
-* Docker Containerization
-* Cloud Deployment
-* CI/CD Pipeline
+* Multi-Tenant Support
 
 ---
 
 ## Learning Outcomes
 
-This project demonstrates practical experience with:
+Through this project, I gained hands-on experience with:
 
-* Spring Boot
-* REST API Development
+* Spring Boot Development
+* REST API Design
 * JWT Authentication
-* Role-Based Access Control
-* JPA/Hibernate
-* MySQL
-* DTO Pattern
-* Exception Handling
-* API Documentation
-* AI Integration
-* Production-Style Backend Architecture
+* Spring Security
+* PostgreSQL Integration
+* Hibernate & JPA
+* Swagger Documentation
+* AI API Integration
+* Cloud Deployment
+* Production Configuration Management
 
 ---
 
@@ -326,3 +345,14 @@ This project demonstrates practical experience with:
 
 **Karthik Kumar Reddy Guda**
 
+GitHub:
+https://github.com/gkarthik10
+
+LinkedIn:
+https://www.linkedin.com/in/gkarthik10/
+
+---
+
+## License
+
+This project is developed for educational and portfolio purposes.
