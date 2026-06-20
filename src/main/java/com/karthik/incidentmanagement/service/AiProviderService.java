@@ -2,9 +2,13 @@ package com.karthik.incidentmanagement.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.karthik.incidentmanagement.dto.AiResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,7 +26,36 @@ public class AiProviderService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String analyzeIncident(String description) {
+    public AiResponseDto parseResponse(String response) {
+
+        String category = "";
+        String severity = "";
+        String recommendation = "";
+
+        for (String line : response.split("\n")) {
+
+            if (line.startsWith("Category:")) {
+                category = line.replace("Category:", "").trim();
+            }
+
+            if (line.startsWith("Severity:")) {
+                severity = line.replace("Severity:", "").trim();
+            }
+
+            if (line.startsWith("Recommendation:")) {
+                recommendation =
+                        line.replace("Recommendation:", "").trim();
+            }
+        }
+
+        return new AiResponseDto(
+                category,
+                severity,
+                recommendation
+        );
+    }
+
+    public AiResponseDto analyzeIncident(String description) {
 
         try {
 
@@ -30,16 +63,18 @@ public class AiProviderService {
                     "https://api.groq.com/openai/v1/chat/completions";
 
             String prompt = """
-                    You are a Senior Site Reliability Engineer.
+You are a Senior Site Reliability Engineer.
 
-                    Analyze the following incident and provide:
+Analyze the incident and return ONLY in this format:
 
-                    1. Possible Root Causes
-                    2. Impact
-                    3. Suggested Resolution Steps
+Category: <Database|Network|Application|Security|Infrastructure>
 
-                    Incident:
-                    """ + description;
+Severity: <LOW|MEDIUM|HIGH|CRITICAL>
+
+Recommendation: <short recommendation>
+
+Incident:
+""" + description;
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -69,38 +104,24 @@ public class AiProviderService {
             JsonNode root =
                     objectMapper.readTree(response.getBody());
 
-            return root
+            String content = root
                     .path("choices")
                     .get(0)
                     .path("message")
                     .path("content")
                     .asText();
+            return parseResponse(content);
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-            return """
-                    AI analysis service temporarily unavailable.
-
-                    Possible Root Causes:
-                    1. Database connection pool exhausted
-                    2. Database unavailable
-                    3. Network timeout
-                    4. Long-running transactions
-
-                    Impact:
-                    - Failed requests
-                    - Increased response time
-                    - Service degradation
-
-                    Suggested Resolution Steps:
-                    1. Check application logs
-                    2. Verify database health
-                    3. Check connection pool settings
-                    4. Review recent deployments
-                    5. Monitor system metrics
-                    """;
         }
+            catch (Exception e) {
+
+                e.printStackTrace();
+
+                return new AiResponseDto(
+                        "Unknown",
+                        "MEDIUM",
+                        "AI service temporarily unavailable. Check logs and investigate manually."
+                );
+            }
     }
 }

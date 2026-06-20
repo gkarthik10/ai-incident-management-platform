@@ -4,6 +4,7 @@ import com.karthik.incidentmanagement.dto.LoginRequestDto;
 import com.karthik.incidentmanagement.dto.LoginResponseDto;
 import com.karthik.incidentmanagement.dto.RegisterRequestDto;
 import com.karthik.incidentmanagement.entity.User;
+import com.karthik.incidentmanagement.exception.ResourceNotFoundException;
 import com.karthik.incidentmanagement.repository.UserRepository;
 import com.karthik.incidentmanagement.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -42,13 +43,13 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() ->
-                        new RuntimeException("Invalid credentials"));
+                        new ResourceNotFoundException("Incident not found"));
 
         if (!passwordEncoder.matches(
                 dto.getPassword(),
                 user.getPassword())) {
 
-            throw new RuntimeException("Invalid credentials");
+            throw new ResourceNotFoundException("Incident not found");
         }
 
         return new LoginResponseDto(

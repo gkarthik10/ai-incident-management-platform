@@ -13,9 +13,6 @@ public class AiServiceImpl implements AiService {
     @Override
     public AiResponseDto analyze(String description) {
 
-        String result =
-                aiProviderService.analyzeIncident(description);
-
-        return new AiResponseDto(result);
+        return aiProviderService.analyzeIncident(description);
     }
 }
