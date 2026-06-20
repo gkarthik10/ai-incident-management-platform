@@ -18,6 +18,7 @@ public class IncidentController {
 
     private final IncidentService incidentService;
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     @PostMapping
     public Incident createIncident(
             @Valid @RequestBody IncidentRequestDto dto) {
@@ -25,11 +26,13 @@ public class IncidentController {
         return incidentService.createIncident(dto);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','ENGINEER','EMPLOYEE')")
     @GetMapping
     public List<Incident> getAllIncidents() {
         return incidentService.getAllIncidents();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','ENGINEER','EMPLOYEE')")
     @GetMapping("/{id}")
     public Incident getIncidentById(
             @PathVariable Long id) {
@@ -37,8 +40,8 @@ public class IncidentController {
         return incidentService.getIncidentById(id);
     }
 
-    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
     public String deleteIncident(
             @PathVariable Long id) {
 
@@ -47,10 +50,8 @@ public class IncidentController {
         return "Incident deleted successfully";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','ENGINEER')")
     @PutMapping("/{id}/status")
-    @PreAuthorize(
-            "hasRole('ADMIN') or hasRole('ENGINEER')"
-    )
     public Incident updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateStatusDto dto
